@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script src="js/break_eternity.js"></script>
+    <script src="js/elements.js"></script>
+    <script src="js/saves.js"></script>
+    <script src="js/format.js"></script>
+    <script src="js/temp.js"></script>
+    <script src="js/calc.js"></script>
+    <script src="js/main.js"></script>
+
+    <script src="js/doubleC.js"></script>
+    <script src="js/research.js"></script>
+
+    <script src="js/other.js"></script>
+    <script src="js/vue.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <title>Project Claustrophobia</title>
+</head>
+<body onload="loadGame()">
+    <input id="copy" style="position: absolute; top: 0; left: 0; user-select: all; visibility: hidden;">
+    <div id="notify"></div>
+    <div id="app" style="display: none;">
+        <div class="table_center" style="margin-top: 30px; height: calc(100% - 30px);">
+            <div style="width: 430px; overflow-y: auto; height: 100%;">
+                <div class="hex">
+                    <div class="hex-progress" id="box1" :class="{capped: player.p.gte(1)}" onclick="finishBox()">
+                        <div>
+                            [<span v-html="formatStaticMain(player.p)"></span> = {{ format(player.p) }}]
+                            <br>
+                            <span style="font-size: 16px;">{{ player.p.formatGain(tmp.pGain) }}</span>
+                            <br><br>
+                            {{ formatStaticPercent(tmp.progress) }}
+                        </div>
+                    </div>
+                </div><br><div class="hex" v-if="player.reset >= 10 || player.double_unl">
+                    <div class="hex-progress" id="box2" :class="{capped: tmp.double_formula >= 1 }" onclick="MAIN.double.reset()">
+                        <div>
+                            [<span v-html="formatStaticMain(tmp.double_formula)"></span> = {{ format(tmp.double_formula) }}]
+                            <br>
+                            <span style="font-size: 16px;">(based on <b>Compacted Box</b>)</span>
+                            <br><br>
+                            {{ formatStaticPercent(tmp.double_progress) }}
+                        </div>
+                    </div>
+                </div>
+            </div><div style="width: calc(100% - 450px); overflow-y: auto; height: 100%; padding: 0 10px;">
+                <div>
+                    <button class="tab-btn" onclick="tmp.tab = 'opt'">Options</button>
+                    <button class="tab-btn" onclick="tmp.tab = 'info'">Info</button>
+                    <button class="tab-btn" onclick="tmp.tab = 'box'">Box</button>
+                    <button class="tab-btn" onclick="tmp.tab = 'double'" v-if="player.double>0">Double</button>
+                </div><br>
+                <div v-if="player.box_unl && tmp.tab == 'box'">
+                    You have <h3>{{ format(player.reset,0) }}</h3> Compacted Box, which slows production by <h3>/{{ tmp.penalty.format(0) }}</h3> and
+                    gives <h3>{{ tmp.totalResearch.format(0) }}</h3> Research Points.<br><br>
+
+                    You have <b>{{ tmp.unspentResearch.format(0) }}</b> unspent research points.<br>
+                    You have purchased <b>{{ player.res_upgs.length }}</b> research upgrade, which increases the cost by <b>{{ formatMult(tmp.resUpgs.scale) }}</b>.<br><br>
+                    
+                    <button onclick="respecResearch()">Respec the upgrades</button>
+
+                    <div class="table_center">
+                        <div v-for="x in RES_UPGS.length">
+                            <div class="research-upg-div" v-if="RES_UPGS[x-1].unl()">
+                                <button :class="{locked: !player.res_upgs.includes(x-1)}" @click="revertResearchUpg(x-1)" class="remove_btn">X</button>
+                                <div @click="buyResearchUpg(x-1)" :class="{afford: tmp.unspentResearch.gte(tmp.resUpgs.cost[x-1]) && !player.res_upgs.includes(x-1), bought: player.res_upgs.includes(x-1), charged: player.res_charge.includes(x-1)}">
+                                    <div>
+                                        <div v-html="RES_UPGS[x-1].desc" style="min-height: 100px;"></div>
+                                        <div v-if="RES_UPGS[x-1].effDesc">Effect: <span v-html="RES_UPGS[x-1].effDesc(tmp.resUpgs.effect[x-1])"></span></div>
+                                        Cost: {{ player.res_upgs.includes(x-1) ? player.res_spent[x-1].format(0) : tmp.resUpgs.cost[x-1].format(0) }} Research Points
+                                    </div>
+                                </div>
+                                <button :class="{locked: tmp.charger_upgrade <= player.res_charge.length && !player.res_charge.includes(x-1)}" @click="chargeResearchUpg(x-1)" class="charge_btn">🗲</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><div v-if="tmp.tab == 'double'">
+                    You have <h3>{{ format(player.double,0) }}</h3> Double Compacted Box, which makes Compacted Box's penalty <h3>{{ formatPercent(tmp.double_penalty[0]-1,1) }}</h3> stronger and
+                    reduces the formula by <h3>/{{ format(tmp.double_penalty[1],1) }}</h3>.
+                    <br><br>
+                    (Π[ψ×Σb<sub>i</sub>+1])<sup>{{ player.double }}×Π[ψ×Σp<sub>i</sub>+1]</sup> = <b>{{ formatMult(tmp.charge_formula) }}</b> to normal production. <span v-html="tmp.charge_formula.softcapHTML('e100000')"></span><br>
+                    ψ = {{ format(tmp.double_psi) }}
+                    <br><br>
+                    <div>
+                        <div class="table_center" v-for="y in tmp.charge_len[0]">
+                            <div v-for="x in tmp.charge_len[1]" class="charge-btn"
+                            :class="{choosed: player.charge_ch == y+''+x}"
+                            @click="player.charge_ch = player.charge_ch == y+''+x ? '' : y+''+x"
+                            :style="{'--percent': player.charge[y-1][x-1]*100+'%'}">
+                                <div>
+                                    {{ player.charge[y-1][x-1].toFixed(3) + (player.charge_ch == y+''+x ? "⯅" : "⯆") }}
+                                </div>
+                            </div><div class="charge-row-info">
+                                <div>b<sub>{{ y }}</sub></div>
+                            </div>
+                        </div><div class="table_center">
+                            <div class="charge-column-info" v-for="x in tmp.charge_len[1]">
+                                <div>p<sub>{{ x }}</sub></div>
+                            </div><div style="width: 40px"></div>
+                        </div>
+                    </div><br>
+                    <div>
+                        <div v-for="m in MAIN.double.milestone" class="double-milestone" :class="{reached: player.double>=m.r}">
+                            <h3>{{ m.r }} Double Compacted Box</h3><br><br>
+                            <div v-html="m.desc"></div>
+                        </div>
+                    </div>
+                </div><div v-if="tmp.tab == 'info'">
+                    <div v-if="player.box_unl">
+                        <h2>Compacted Box</h2>
+                        The game has 2d-designed isometric box like cap at 1.
+                        Starting earn is 0.1 per second, and, if it got capped at 1, then you may claim <b>Research Points</b> and drain all of box.
+                        However, when draining box, you always claim <b>Compacted Box</b> that decreases production dramatically.
+                        <h2>Research Upgrades</h2>
+                        <b>Research Upgrades</b> will spend <b>Research Points</b>, but you may sell them, if you cannot afford other upgrade.
+                        Selling upgrade drains box automatically. Each <b>Research Upgrade</b> has only one level.
+                    </div><div v-if="player.double_unl">
+                        <h2>Double Compacted Box</h2>
+                        When reaching 12 <b>Compacted Box</b> at first time, you’ll unlock <b>Double Compacted Box</b>, which requires the formula that defined by <b>Compacted Box</b>.
+                        But it resets all previous features, reduces the formula and makes <b>Compacted Box</b> stronger.
+                        <h2>Charge Core</h2>
+                        When unlocking Double Compacted Box, you’ll unlock <b>Charge Core</b>.
+                        It contains 4 <b>Chargers</b> (2 columns and 2 rows), you may upgrade them when reaching something else.
+                        You choose any charger, then it’s activated, and others will be inactive.
+                        If you click again, will inactive. Active charger increases its amount each second, capped at 1, and inactive – decreases, but slower than active.<br><br>
+                        Each row of charge core increases its base, and each column – its power. The formula, that defined by bases and powers, shows in tab.
+                    </div>
+                </div><div v-if="tmp.tab == 'opt'">
+                    <button onclick="save()">Save</button>
+                    <button onclick="if (confirm('Are you sure you want to wipe game?')) wipe(true)">Hard Reset</button>
+                    <button onclick="exporty()">Export to File</button>
+                    <button onclick="export_copy()">Export to Clipboard</button>
+                    <button onclick="importy()">Import</button>
+                    <br><br>
+                    Project Claustrophobia - made by <a href="https://github.com/MrRedShark77">MrRedShark77</a> in <a href="https://itch.io/jam/new-years-incremental-game-jam-2023">IGJ 2023-1</a>
+                    <br><br>
+                    Supported files:<br>
+                    <a href="https://github.com/Patashu/break_eternity.js/tree/master">break_eternity.js</a> by <a href="https://github.com/Patashu">Patashu</a><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
