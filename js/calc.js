@@ -11,7 +11,7 @@ function calc(dt) {
 
             let c = player.charge[y]
 
-            c[x] = true || player.charge_ch == yy+""+xx ? Math.min(1, c[x] + dt/10) : Math.max(0,c[x] - dt/s)
+            c[x] = player.charge_ch == yy+""+xx ? Math.min(1, c[x] + dt/10) : Math.max(0,c[x] - dt/s)
         }
 
         if (player.double >= 6) finishBox()
