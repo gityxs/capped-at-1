@@ -42,6 +42,8 @@ MAIN.double = {
 
         if (hasResearchUpg(14)) q **= 0.85
 
+        if (hasResearchUpg(14) && chargedResUpg(14)) p **= 0.85
+
         return [p,softcap(q,100,0.25,0)]
     },
 
@@ -53,7 +55,7 @@ MAIN.double = {
         if (hasResearchUpg(6)) psi += researchUpgEff(6,0)
         if (hasResearchUpg(7)) psi += researchUpgEff(7,0)
 
-        if (hasResearchUpg(12)) psi **= 1.25
+        if (hasResearchUpg(12)) psi **= chargedResUpg(12)?1.4:1.25
 
         tmp.double_psi = psi
 
@@ -75,7 +77,13 @@ MAIN.double = {
 
         let x = Decimal.pow(b,player.double*p)
 
-        return x.softcap('e100000',0.8,2)
+        let sp = E('ee5')
+
+        if (player.double>=10) sp = sp.pow(5)
+
+        tmp.double_formula_ss = sp
+
+        return x.softcap(sp,0.8,2)
     },
 
     milestone: [
@@ -87,7 +95,7 @@ MAIN.double = {
             desc: `Increase <b>Charge Core</b>'s row by <b>1</b>.`,
         },{
             r: 5,
-            desc: `<b>Charge Core</b>'s inactive time is <b>75%</b> slower.`,
+            desc: `<b>Charge Core</b> decreases <b>75%</b> slower.`,
         },{
             r: 6,
             desc: `Automate <b>Compacted Box</b>. <b>Double Compacted Box</b> will no longer reset <b>Compacted Box</b>'s time.`,
@@ -96,7 +104,13 @@ MAIN.double = {
             desc: `Increase <b>Charge Core</b>'s column by <b>1</b>. <b>Charge Core</b>'s inactive time is another <b>80%</b> slower.`,
         },{
             r: 9,
-            desc: `Add <b>1</b> to <b>Upgrade Charger</b>. (WIP)`,
+            desc: `Add <b>1</b> to <b>Upgrade Charger</b>. Inactive charge will no longer decreasing.`,
+        },{
+            r: 10,
+            desc: `<b>Core Formula</b>'s effect softcap starts <b>^5</b> later.`,
+        },{
+            r: 11,
+            desc: `Increase <b>Charge Core</b>'s row by <b>1</b>. Add <b>1</b> to <b>Upgrade Charger</b>.`,
         },
     ],
 }
@@ -114,6 +128,7 @@ tmp_update.push(()=>{
 
     if (player.double >= 4) tmp.charge_len[0] += 1
     if (player.double >= 7) tmp.charge_len[1] += 1
+    if (player.double >= 11) tmp.charge_len[0] += 1
 
     tmp.charge_formula = md.charge_formula()
 })

@@ -96,9 +96,9 @@ function getPlayerData() {
 
         time: 0,
     }
-    for (let x = 0; x < 3; x++) {
+    for (let x = 0; x < 4; x++) {
         let p = []
-        for (let y = 0; y < 3; y++) p.push(0)
+        for (let y = 0; y < 4; y++) p.push(0)
         s.charge[x] = p
     }
     return s

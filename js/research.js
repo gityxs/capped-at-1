@@ -2,11 +2,14 @@ const RES_UPGS = [
     {
         unl: ()=>true,
         desc: `Boost production based on <b>Compacted Box</b>.`,
+        charged: `Boost production based on <b>Compacted Box</b> and <b>Double Compacted Box</b>.`,
         cost: E(1),
         effect() {
             let x = hasResearchUpg(14) ? Decimal.pow(player.reset+2,player.reset**2.5) : Decimal.pow(player.reset+2,player.reset/2+1)
 
             if (hasResearchUpg(4)) x = x.pow(1.5)
+
+            if (chargedResUpg(0)) x = x.pow(player.double/2+1)
 
             return x
         },
@@ -30,9 +33,12 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=3,
         desc: `Decrease <b>Compacted Box</b>'s penalty base based on unspent <b>Research Points</b>.`,
+        charged: `Decrease <b>Compacted Box</b>'s penalty base based on total <b>Research Points</b>.`,
         cost: E(2),
         effect() {
-            let x = tmp.unspentResearch.add(1).log10().mul(2.5)
+            let c = chargedResUpg(2)
+
+            let x = (c ? tmp.totalResearch.pow(2) : tmp.unspentResearch).add(1).log10().mul(2.5)
 
             if (hasResearchUpg(5)) x = x.mul(researchUpgEff(5))
 
@@ -43,10 +49,15 @@ const RES_UPGS = [
         effDesc: x=>"-"+format(x)+softcapHTML(x,2.5),
     },{
         unl: ()=>player.reset>=4,
-        desc: `Increase <b>Compacted Box</b>'s bonus base based on unspent <b>Compacted Box</b>.`,
+        desc: `Increase <b>Compacted Box</b>'s bonus base based on <b>Compacted Box</b>.`,
+        charged: `Increase <b>Compacted Box</b>'s bonus base based on <b>Compacted Box</b> and <b>Double Compacted Box</b>.`,
         cost: E(5),
         effect() {
             let x = player.reset*.4
+
+            if (chargedResUpg(3)) x *= player.double*.2+1
+
+            if (chargedResUpg(5)) x *= researchUpgEff(5,1)
 
             if (x>=3) x = (x/3)**(hasResearchUpg(10)?.75:.5)*3
 
@@ -59,24 +70,30 @@ const RES_UPGS = [
         cost: E(8),
     },{
         unl: ()=>player.reset>=9,
-        desc: `Third <b>Research Upgrade</b> is stronger based on spent time in <b>Compacted Box</b>. <i>(capped over 5 minutes)</i>`,
+        desc: `Third <b>Research Upgrade</b> is stronger based on spent time in <b>Compacted Box</b>. <i>(capped at 5 minutes)</i>`,
+        charged: `Third 4 <b>Research Upgrades</b> are stronger based on spent time in <b>Compacted Box</b>.`,
         cost: E(10),
         effect() {
-            let x = Math.log10(Math.min(300,player.p_time)+1)/2+1
+            let x = Math.log10(Math.min(chargedResUpg(5)?1/0:300,player.p_time)+1)/2+1
 
-            return E(x**2).softcap(4,1/3,0).toNumber()
+            return E(x**2).softcap(4,chargedResUpg(10)?2/3:1/3,0).toNumber()
         },
         effDesc: x=>formatMult(x)+" stronger"+softcapHTML(x,4),
     },{
         unl: ()=>player.reset>=13 && player.double>0,
         desc: `Increase <b>ψ</b> base by <b>Compacted Box</b>.`,
+        charged: `Increase <b>ψ</b> base by <b>Compacted Box</b> and <b>Research Points</b>.`,
         cost: E(6),
         effect() {
             let r = player.reset
 
-            if (r>16) r = (r/16)**.5*16
+            if (chargedResUpg(6)) r *= tmp.totalResearch.add(1).log10().toNumber()+1
+
+            if (r>16) r = (r/16)**(chargedResUpg(10)?.75:.5)*16
 
             let x = r*0.075
+
+            if (chargedResUpg(14)) x = (x+1)**1.5-1
 
             return x
         },
@@ -90,7 +107,9 @@ const RES_UPGS = [
 
             let x = r*0.075
 
-            if (hasResearchUpg(13)) x *= 2
+            if (hasResearchUpg(13)) x *= chargedResUpg(13) ? 4 : 2
+
+            if (chargedResUpg(14)) x = (x+1)**1.75-1
 
             return x
         },
@@ -98,6 +117,7 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=17,
         desc: `Normal production is raised to the <b>1.25th</b> power. <i>(before division)</i>`,
+        charged: `Normal production is raised to the <b>1.5th</b> power. <i>(before division)</i>`,
         cost: E(10),
     },{
         unl: ()=>player.reset>=18,
@@ -111,30 +131,39 @@ const RES_UPGS = [
         effDesc: x=>"-"+format(x),
     },{
         unl: ()=>player.reset>=26,
-        desc: `Third 4 <b>Research Upgrades</b>' softcap is weaker.`,
+        desc: `Third 4 <b>Research Upgrades</b>' effect softcap is weaker.`,
+        charged: `Third 4, sixth 7 <b>Research Upgrades</b>' effect softcap is weaker.`,
         cost: E(15),
     },{
         unl: ()=>player.reset>=27&&player.double>=5,
         desc: `<b>Compacted Box</b>'s penalty scaling is weaker.`,
+        charged: `<b>Compacted Box</b>'s penalty scaling is slightly weaker.`,
         cost: E(20),
     },{
         unl: ()=>player.reset>=30&&player.double>=5,
         desc: `Decrease <b>Double Compacted Box</b>'s penalty base based on unspent <b>Research Points</b>.<br><b>ψ</b> base is raised to the <b>1.25th</b> power.`,
+        charged: `Decrease <b>Double Compacted Box</b>'s penalty base based on total <b>Research Points</b>.<br><b>ψ</b> base is raised to the <b>1.4th</b> power.`,
         cost: E(20),
         effect() {
-            let x = tmp.unspentResearch.add(1).log10().div(10)
+            let x = (chargedResUpg(12)?tmp.totalResearch.pow(4):tmp.unspentResearch).add(1).log10().div(10)
 
             return x.toNumber()
         },
         effDesc: x=>"-"+format(x),
     },{
         unl: ()=>player.reset>=40,
-        desc: `Eighth <b>Research Upgrade</b> is twice effective.`,
+        desc: `Eighth <b>Research Upgrade</b> is twice as effective.`,
+        charged: `Eighth <b>Research Upgrade</b> is quadrice as effective.`,
         cost: E(25),
     },{
         unl: ()=>player.reset>=60,
         desc: `First 3 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s second penalty is weaker.`,
+        charged: `First 3, eighth 9 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s penalty is weaker.`,
         cost: E(250),
+    },{
+        unl: ()=>player.reset>=75,
+        desc: `<b>Compacted Box</b>'s penalty effect is dilated to the 0.8th power.`,
+        cost: E(1000),
     },
 ]
 
@@ -142,6 +171,7 @@ const RES_UPGS_LEN = RES_UPGS.length
 
 function hasResearchUpg(i) { return player.res_upgs.includes(i) }
 function researchUpgEff(i,def=1) { return tmp.resUpgs.effect[i]||def }
+function chargedResUpg(i) { return player.res_charge.includes(i) }
 
 function buyResearchUpg(i) {
     let cost = tmp.resUpgs.cost[i]
@@ -163,7 +193,7 @@ function revertResearchUpg(i) {
     player.p = E(0)
     if (player.double < 3) player.p_time = 0
 
-    updateRUTemp()
+    updateTemp()
 }
 
 function chargeResearchUpg(i) {
@@ -173,11 +203,11 @@ function chargeResearchUpg(i) {
         player.p = E(0)
         if (player.double < 3) player.p_time = 0
 
-        updateRUTemp()
-    } else if (player.res_charge.length < tmp.charger_upgrade) {
+        updateTemp()
+    } else if (player.res_charge.length < tmp.charger_upgrade && RES_UPGS[i].charged) {
         player.res_charge.push(i)
 
-        updateRUTemp()
+        updateTemp()
     }
 }
 
@@ -193,7 +223,8 @@ function respecResearch() {
 
 function updateRUTemp() {
     tmp.charger_upgrade = 0
-    //if (player.double >= 9) tmp.charger_upgrade++
+    if (player.double >= 9) tmp.charger_upgrade++
+    if (player.double >= 11) tmp.charger_upgrade++
 
     let tru = tmp.resUpgs
 

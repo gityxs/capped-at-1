@@ -306,7 +306,7 @@ function format(ex, acc=3, max=9, type="mixed_sc") {
             if (ex.log10().lt(Math.min(-acc,0)) && acc > 1) {
                 let e = ex.log10().ceil()
                 let m = ex.div(e.eq(-1)?E(0.1):E(10).pow(e))
-                let be = e.mul(-1).max(1).log10().gte(9)
+                let be = e.mul(-1).max(1).log10().gte(6)
                 return neg+(be?'':m.toFixed(2))+'e'+format(e, 0, max, "mixed_sc")
             } else if (e.lt(max)) {
                 let a = Math.max(Math.min(acc-e.toNumber(), acc), 0)
@@ -317,7 +317,7 @@ function format(ex, acc=3, max=9, type="mixed_sc") {
                     return (slog.gte(1e9)?'':E(10).pow(slog.sub(slog.floor())).toFixed(2)) + "F" + format(slog.floor(), 0)
                 }
                 let m = ex.div(E(10).pow(e))
-                let be = e.log10().gte(9)
+                let be = e.log10().gte(6)
                 return neg+(be?'':m.toFixed(2))+'e'+format(e, 0, max, "mixed_sc")
             }
         case "st":

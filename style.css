@@ -308,6 +308,10 @@ h3 {
     cursor: pointer;
 }
 
+.research-upg-div > .charge_btn.charged {
+    background-color: red;
+}
+
 .research-upg-div > div.afford {
     background-color: #aaa;
     cursor: pointer;

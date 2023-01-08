@@ -17,16 +17,20 @@ const MAIN = {
 
         x = x.mul(tmp.charge_formula)
 
-        if (hasResearchUpg(8)) x = x.pow(1.25)
+        if (hasResearchUpg(8)) x = x.pow(chargedResUpg(8)?1.5:1.25)
 
         return x.div(10).div(tmp.penalty)
     },
     penalty() {
         let b = player.reset
 
-        if (b > 50) b = (b/50)**3*50
+        let q = chargedResUpg(11) && hasResearchUpg(11)
 
-        if (b > 10) b = (b/10)**2*10
+        if (b > 100) b = (b/100)**4*100
+
+        if (b > 50) b = (b/50)**(q?2.5:3)*50
+
+        if (b > 10) b = (b/10)**(q?1.75:2)*10
 
         if (hasResearchUpg(2)) b -= researchUpgEff(2,0)
         if (hasResearchUpg(9)) b -= researchUpgEff(9,0)
@@ -34,6 +38,8 @@ const MAIN = {
         b *= tmp.double_penalty[0]
 
         let x = Decimal.pow(10,b**(hasResearchUpg(11)?1.4:1.5))
+
+        if (hasResearchUpg(15)) x = expMult(x,0.8)
 
         return x
     },

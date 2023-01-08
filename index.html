@@ -66,19 +66,20 @@
                     You have purchased <b>{{ player.res_upgs.length }}</b> research upgrade, which increases the cost by <b>{{ formatMult(tmp.resUpgs.scale) }}</b>.<br><br>
                     
                     <button onclick="respecResearch()">Respec the upgrades</button>
+                    <div v-if="tmp.charger_upgrade>0">You have {{ tmp.charger_upgrade-player.res_charge.length }} Upgrade Charger.</div>
 
-                    <div class="table_center">
+                    <br><div class="table_center">
                         <div v-for="x in RES_UPGS.length">
                             <div class="research-upg-div" v-if="RES_UPGS[x-1].unl()">
                                 <button :class="{locked: !player.res_upgs.includes(x-1)}" @click="revertResearchUpg(x-1)" class="remove_btn">X</button>
                                 <div @click="buyResearchUpg(x-1)" :class="{afford: tmp.unspentResearch.gte(tmp.resUpgs.cost[x-1]) && !player.res_upgs.includes(x-1), bought: player.res_upgs.includes(x-1), charged: player.res_charge.includes(x-1)}">
                                     <div>
-                                        <div v-html="RES_UPGS[x-1].desc" style="min-height: 100px;"></div>
+                                        <div v-html="player.res_charge.includes(x-1) ? RES_UPGS[x-1].charged : RES_UPGS[x-1].desc" style="min-height: 100px;"></div>
                                         <div v-if="RES_UPGS[x-1].effDesc">Effect: <span v-html="RES_UPGS[x-1].effDesc(tmp.resUpgs.effect[x-1])"></span></div>
                                         Cost: {{ player.res_upgs.includes(x-1) ? player.res_spent[x-1].format(0) : tmp.resUpgs.cost[x-1].format(0) }} Research Points
                                     </div>
                                 </div>
-                                <button :class="{locked: tmp.charger_upgrade <= player.res_charge.length && !player.res_charge.includes(x-1)}" @click="chargeResearchUpg(x-1)" class="charge_btn">🗲</button>
+                                <button :class="{locked: (tmp.charger_upgrade <= player.res_charge.length && !player.res_charge.includes(x-1)) || !RES_UPGS[x-1].charged, charged: player.res_charge.includes(x-1)}" @click="chargeResearchUpg(x-1)" class="charge_btn">🗲</button>
                             </div>
                         </div>
                     </div>
@@ -86,7 +87,7 @@
                     You have <h3>{{ format(player.double,0) }}</h3> Double Compacted Box, which makes Compacted Box's penalty <h3>{{ formatPercent(tmp.double_penalty[0]-1,1) }}</h3> stronger and
                     reduces the formula by <h3>/{{ format(tmp.double_penalty[1],1) }}</h3>.
                     <br><br>
-                    (Π[ψ×Σb<sub>i</sub>+1])<sup>{{ player.double }}×Π[ψ×Σp<sub>i</sub>+1]</sup> = <b>{{ formatMult(tmp.charge_formula) }}</b> to normal production. <span v-html="tmp.charge_formula.softcapHTML('e100000')"></span><br>
+                    (Π[ψ×Σb<sub>i</sub>+1])<sup>{{ player.double }}×Π[ψ×Σp<sub>i</sub>+1]</sup> = <b>{{ formatMult(tmp.charge_formula) }}</b> to normal production. <span v-html="tmp.charge_formula.softcapHTML(tmp.double_formula_ss)"></span><br>
                     ψ = {{ format(tmp.double_psi) }}
                     <br><br>
                     <div>
