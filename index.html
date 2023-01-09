@@ -29,7 +29,7 @@
     <div id="notify"></div>
     <div id="app" style="display: none;">
         <div class="table_center" style="margin-top: 30px; height: calc(100% - 30px);">
-            <div style="width: 430px; overflow-y: auto; height: 100%;">
+            <div style="width: 430px; overflow-y: scroll; height: 100%;">
                 <div class="hex">
                     <div class="hex-progress" id="box1" :class="{capped: player.p.gte(1)}" onclick="finishBox()">
                         <div>
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-            </div><div style="width: calc(100% - 450px); overflow-y: auto; height: 100%; padding: 0 10px;">
+            </div><div style="width: calc(100% - 450px); overflow-y: scroll; height: 100%; padding: 0 10px;">
                 <div>
                     <button class="tab-btn" onclick="tmp.tab = 'opt'">Options</button>
                     <button class="tab-btn" onclick="tmp.tab = 'info'">Info</button>

@@ -158,12 +158,27 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=60,
         desc: `First 3 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s second penalty is weaker.`,
-        charged: `First 3, eighth 9 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s penalty is weaker.`,
+        charged: `First 3, seventh 8 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s penalty is weaker.`,
         cost: E(250),
     },{
         unl: ()=>player.reset>=75,
         desc: `<b>Compacted Box</b>'s penalty effect is dilated to the 0.8th power.`,
         cost: E(1000),
+    },{
+        unl: ()=>player.reset>=110,
+        desc: `<b>Core Formula</b>'s effect softcap starts later based on <b>Compacted Box</b>.`,
+        charged: `<b>Core Formula</b>'s effect softcap starts later based on <b>Compacted Box</b> and <b>Double Compacted Box</b>.`,
+        cost: E(2000),
+        effect() {
+            let b = player.reset
+
+            if (chargedResUpg(16)) b *= player.double+1
+
+            let x = (b+1)**.4
+
+            return x
+        },
+        effDesc: x=>"^"+format(x)+" later",
     },
 ]
 
@@ -225,6 +240,8 @@ function updateRUTemp() {
     tmp.charger_upgrade = 0
     if (player.double >= 9) tmp.charger_upgrade++
     if (player.double >= 11) tmp.charger_upgrade++
+    if (player.double >= 12) tmp.charger_upgrade++
+    if (player.double >= 13) tmp.charger_upgrade += Math.floor((player.double-11)/2)
 
     let tru = tmp.resUpgs
 

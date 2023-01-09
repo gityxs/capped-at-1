@@ -80,6 +80,7 @@ MAIN.double = {
         let sp = E('ee5')
 
         if (player.double>=10) sp = sp.pow(5)
+        if (hasResearchUpg(16)) sp = sp.pow(researchUpgEff(16))
 
         tmp.double_formula_ss = sp
 
@@ -104,13 +105,19 @@ MAIN.double = {
             desc: `Increase <b>Charge Core</b>'s column by <b>1</b>. <b>Charge Core</b>'s inactive time is another <b>80%</b> slower.`,
         },{
             r: 9,
-            desc: `Add <b>1</b> to <b>Upgrade Charger</b>. Inactive charge will no longer decreasing.`,
+            desc: `Add <b>1</b> to <b>Upgrade Charger</b>. Inactive charge will no longer decrease.`,
         },{
             r: 10,
             desc: `<b>Core Formula</b>'s effect softcap starts <b>^5</b> later.`,
         },{
             r: 11,
             desc: `Increase <b>Charge Core</b>'s row by <b>1</b>. Add <b>1</b> to <b>Upgrade Charger</b>.`,
+        },{
+            r: 12,
+            desc: `Increase <b>Charge Core</b>'s column by <b>1</b>. Add <b>1</b> to <b>Upgrade Charger</b>.`,
+        },{
+            r: 13,
+            desc: `Add <b>1</b> to <b>Upgrade Charger</b> per 2 <b>Double Compacted Boxes</b>, starting at 13.`,
         },
     ],
 }
@@ -129,6 +136,7 @@ tmp_update.push(()=>{
     if (player.double >= 4) tmp.charge_len[0] += 1
     if (player.double >= 7) tmp.charge_len[1] += 1
     if (player.double >= 11) tmp.charge_len[0] += 1
+    if (player.double >= 12) tmp.charge_len[1] += 1
 
     tmp.charge_formula = md.charge_formula()
 })
