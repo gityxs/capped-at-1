@@ -179,12 +179,16 @@ const RES_UPGS = [
             return x
         },
         effDesc: x=>"^"+format(x)+" later",
+    },{
+        unl: ()=>player.reset>=360,
+        desc: `<b>Core Formula</b>'s effect softcap is weaker.`,
+        cost: E(80000),
     },
 ]
 
 const RES_UPGS_LEN = RES_UPGS.length
 
-function hasResearchUpg(i) { return player.res_upgs.includes(i) }
+function hasResearchUpg(i) { return player.res_upgs.includes(i) && RES_UPGS[i].unl() }
 function researchUpgEff(i,def=1) { return tmp.resUpgs.effect[i]||def }
 function chargedResUpg(i) { return player.res_charge.includes(i) }
 
@@ -207,6 +211,7 @@ function revertResearchUpg(i) {
 
     player.p = E(0)
     if (player.double < 3) player.p_time = 0
+
 
     updateTemp()
 }
@@ -242,6 +247,7 @@ function updateRUTemp() {
     if (player.double >= 11) tmp.charger_upgrade++
     if (player.double >= 12) tmp.charger_upgrade++
     if (player.double >= 13) tmp.charger_upgrade += Math.floor((player.double-11)/2)
+    if (player.triple >= 5) tmp.charger_upgrade += player.triple-3
 
     let tru = tmp.resUpgs
 

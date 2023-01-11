@@ -14,6 +14,7 @@
     <script src="js/calc.js"></script>
     <script src="js/main.js"></script>
 
+    <script src="js/tripleC.js"></script>
     <script src="js/doubleC.js"></script>
     <script src="js/research.js"></script>
 
@@ -50,13 +51,24 @@
                             {{ formatStaticPercent(tmp.double_progress) }}
                         </div>
                     </div>
+                </div><br><div class="hex" v-if="player.double >= 15 || player.triple_unl">
+                    <div class="hex-progress" id="box3" :class="{capped: tmp.triple_formula >= 1 }" onclick="MAIN.triple.reset()">
+                        <div>
+                            [<span v-html="formatStaticMain(tmp.triple_formula)"></span> = {{ format(tmp.triple_formula) }}]
+                            <br>
+                            <span style="font-size: 16px;">(based on <b>Double Compacted Box</b>)</span>
+                            <br><br>
+                            {{ formatStaticPercent(tmp.triple_progress) }}
+                        </div>
+                    </div>
                 </div>
             </div><div style="width: calc(100% - 450px); overflow-y: scroll; height: 100%; padding: 0 10px;">
                 <div>
                     <button class="tab-btn" onclick="tmp.tab = 'opt'">Options</button>
                     <button class="tab-btn" onclick="tmp.tab = 'info'">Info</button>
                     <button class="tab-btn" onclick="tmp.tab = 'box'">Box</button>
-                    <button class="tab-btn" onclick="tmp.tab = 'double'" v-if="player.double>0">Double</button>
+                    <button class="tab-btn" onclick="tmp.tab = 'double'" v-if="player.double_unl">Double</button>
+                    <button class="tab-btn" onclick="tmp.tab = 'triple'" v-if="player.triple_unl">Triple</button>
                 </div><br>
                 <div v-if="player.box_unl && tmp.tab == 'box'">
                     You have <h3>{{ format(player.reset,0) }}</h3> Compacted Box, which slows production by <h3>/{{ tmp.penalty.format(0) }}</h3> and
@@ -114,6 +126,34 @@
                             <div v-html="m.desc"></div>
                         </div>
                     </div>
+                </div><div v-if="tmp.tab == 'triple'">
+                    You have <h3>{{ format(player.triple,0) }}</h3> Triple Compacted Box, which:
+                    <br>Makes Double Compacted Box's penalty <h3>{{ formatPercent(tmp.triple_penalty[0]-1,1) }}</h3> stronger;
+                    <br>Adds <h3>{{ format(tmp.triple_penalty[1],0) }}</h3> base to Double Compacted Box's penalty <i>(after scaling)</i>;
+                    <br>Adds <h3>{{ format(tmp.glyph.total,0) }}</h3> Ancient Glyph.
+                    <br><br>
+                    You have <b>{{ format(tmp.glyph.unspent,0) }}</b> Unassigned Ancient Glyph.
+                    <div>
+                        <div v-for="x in tmp.glyph.len" class="table_center">
+                            <div class="glyph-div table_center">
+                                <button @click="MAIN.triple.addGlyph(x-1,1)">{{ MAIN.triple.glyph_name[x-1][0] }}</button>
+                                <button @click="MAIN.triple.addGlyph(x-1,-1)" style="background-color: red;">X</button>
+                                <div>
+                                    <h3>{{ MAIN.triple.glyph_name[x-1][1] }}</h3> [Level {{ format(player.glyph_level[x-1],0) }}] [{{ format(player.glyph_eq[x-1],0) }} Activated]
+                                    <div class="glyph-bar" :style="{'--percent': player.glyph[x-1].min(1).mul(100).toNumber()+'%'}">
+                                        <div>{{ player.glyph[x-1].mul(100).format() }}% <span v-if="player.glyph_eq[x-1]>0">(+{{ tmp.glyph.gain[x-1].mul(100).format() }}%/s)</span></div>
+                                    </div>
+                                    <span v-html="MAIN.triple.glyph_eff[x-1][1](tmp.glyph.eff[x-1])"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div><br>
+                    <div>
+                        <div v-for="m in MAIN.triple.milestone" class="double-milestone" :class="{reached: player.triple>=m.r}">
+                            <h3>{{ m.r }} Triple Compacted Box</h3><br><br>
+                            <div v-html="m.desc"></div>
+                        </div>
+                    </div>
                 </div><div v-if="tmp.tab == 'info'">
                     <div v-if="player.box_unl">
                         <h2>Compacted Box</h2>
@@ -125,7 +165,7 @@
                         Selling upgrade drains box automatically. Each <b>Research Upgrade</b> has only one level.
                     </div><div v-if="player.double_unl">
                         <h2>Double Compacted Box</h2>
-                        When reaching 12 <b>Compacted Box</b> at first time, you’ll unlock <b>Double Compacted Box</b>, which requires the formula that defined by <b>Compacted Box</b>.
+                        When reaching 12 <b>Compacted Boxes</b> at first time, you’ll unlock <b>Double Compacted Box</b>, which requires the formula that defined by <b>Compacted Box</b>.
                         But it resets all previous features, reduces the formula and makes <b>Compacted Box</b> stronger.
                         <h2>Charge Core</h2>
                         When unlocking Double Compacted Box, you’ll unlock <b>Charge Core</b>.
@@ -133,6 +173,13 @@
                         You choose any charger, then it’s activated, and others will be inactive.
                         If you click again, will inactive. Active charger increases its amount each second, capped at 1, and inactive – decreases, but slower than active.<br><br>
                         Each row of charge core increases its base, and each column – its power. The formula, that defined by bases and powers, shows in tab.
+                    </div><div v-if="player.triple_unl">
+                        <h2>Triple Compacted Box</h2>
+                        When reaching 15 <b>Double Compacted Boxes</b> at first time, you’ll unlock <b>Triple Compacted Box</b>, which requires the formula that defined by <b>Double Compacted Box</b>.
+                        But it resets all previous features, makes Double Compacted Box stronger and adds base to its penalty.
+                        <h2>Ancient Glyph</h2>
+                        When unlocking Triple Compacted Box, you’ll unlock <b>Ancient Glyph</b>.
+                        You can claim unassigned <b>Ancient Glyphs</b> by getting more <b>Triple Compacted Boxes</b>. You need to assign <b>Ancient Glyphs</b> to any <b>Ancient Glyph</b>'s type.
                     </div>
                 </div><div v-if="tmp.tab == 'opt'">
                     <button onclick="save()">Save</button>

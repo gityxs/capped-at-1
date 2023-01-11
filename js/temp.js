@@ -15,9 +15,18 @@ function resetTemp() {
         },
 
         double_penalty: [1,1],
+        triple_penalty: [1,0],
         charge_len: [2,2],
 
         charger_upgrade: 0,
+
+        glyph: {
+            len: 3,
+            total: 0,
+            unspent: 0,
+            gain: [],
+            eff: [],
+        },
 
         tab: 'box',
     }

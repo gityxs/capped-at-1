@@ -19,12 +19,16 @@ const MAIN = {
 
         if (hasResearchUpg(8)) x = x.pow(chargedResUpg(8)?1.5:1.25)
 
+        x = x.pow(tmp.glyph.eff[0])
+
         return x.div(10).div(tmp.penalty)
     },
     penalty() {
         let b = player.reset
 
         let q = chargedResUpg(11) && hasResearchUpg(11)
+
+        if (b > 640) b = (b/640)**5*640
 
         if (b > 100) b = (b/100)**4*100
 
@@ -64,6 +68,8 @@ el.update.main = _=>{
     document.documentElement.style.setProperty('--progress-box', (tmp.progress*100)+'%');
 
     document.documentElement.style.setProperty('--progress-box2', (tmp.double_progress*100)+'%');
+
+    document.documentElement.style.setProperty('--progress-box3', (tmp.triple_formula*100)+'%');
 }
 
 tmp_update.push(_=>{

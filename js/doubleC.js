@@ -2,7 +2,7 @@ MAIN.double = {
     formula() {
         let r = player.reset
 
-        let x = Math.min(1,r**2*Math.log10(r+1)/160/tmp.double_penalty[1])
+        let x = Math.min(1,r**(2+tmp.glyph.eff[2])*Math.log10(r+1)/160/tmp.double_penalty[1])
 
         return x
     },
@@ -17,12 +17,14 @@ MAIN.double = {
             this.doReset()
         }
     },
-    doReset() {
+    doReset(order='b2') {
         player.p = E(0)
         if (player.double < 6) player.p_time = 0
         player.reset = 0
-        player.res_upgs = []
-        player.res_spent = []
+        if (player.triple < 4 || order == 'b3') {
+            player.res_upgs = []
+            player.res_spent = []
+        }
         player.res_charge = []
 
         updateTemp()
@@ -31,10 +33,17 @@ MAIN.double = {
     penalty() {
         let r = player.double
         let b = r
+        let pen = tmp.triple_penalty
 
         if (b>7) b = (b/7)**2*7
 
+        b += pen[1]
+
         if (hasResearchUpg(12)) b -= researchUpgEff(12,0)
+
+        b *= pen[0]
+
+        b /= tmp.glyph.eff[3]
 
         let p = r > 2 ? 2**(softcap(b,5,.5,0)-1)/10+1 : b*.1+1
 
@@ -54,6 +63,8 @@ MAIN.double = {
 
         if (hasResearchUpg(6)) psi += researchUpgEff(6,0)
         if (hasResearchUpg(7)) psi += researchUpgEff(7,0)
+
+        psi *= tmp.glyph.eff[1]
 
         if (hasResearchUpg(12)) psi **= chargedResUpg(12)?1.4:1.25
 
@@ -84,7 +95,7 @@ MAIN.double = {
 
         tmp.double_formula_ss = sp
 
-        return x.softcap(sp,0.8,2)
+        return x.softcap(sp,hasResearchUpg(17)?0.86:0.8,2)
     },
 
     milestone: [
@@ -118,6 +129,9 @@ MAIN.double = {
         },{
             r: 13,
             desc: `Add <b>1</b> to <b>Upgrade Charger</b> per 2 <b>Double Compacted Boxes</b>, starting at 13.`,
+        },{
+            r: 18,
+            desc: `Increase <b>Charge Core</b>'s row and column by <b>1</b>.`,
         },
     ],
 }
@@ -137,6 +151,10 @@ tmp_update.push(()=>{
     if (player.double >= 7) tmp.charge_len[1] += 1
     if (player.double >= 11) tmp.charge_len[0] += 1
     if (player.double >= 12) tmp.charge_len[1] += 1
+    if (player.double >= 18) {
+        tmp.charge_len[0] += 1
+        tmp.charge_len[1] += 1
+    }
 
     tmp.charge_formula = md.charge_formula()
 })
