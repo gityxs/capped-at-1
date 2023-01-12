@@ -31,7 +31,11 @@
     <div id="app" style="display: none;">
         <div class="table_center" style="margin-top: 30px; height: calc(100% - 30px);">
             <div style="width: 430px; overflow-y: scroll; height: 100%;">
-                <div class="hex">
+                <div class="simple-hex-btns">
+                    <button id="hex-btn1" onclick="finishBox()" :class="{ready: player.p.gte(1)}">Box<br><span v-if="player.double<6">Not</span> Ready {{ player.double>=6?"(Auto)":"" }}</button>
+                    <button id="hex-btn2" v-if="player.reset >= 10 || player.double_unl" onclick="MAIN.double.reset()" :class="{ready: tmp.double_formula >= 1}">Double<br><span v-if="player.triple<3">Not</span> Ready {{ player.triple>=3?"(Auto)":"" }}</button>
+                    <button id="hex-btn3" v-if="player.double >= 15 || player.triple_unl" onclick="MAIN.triple.reset()" :class="{ready: tmp.triple_formula >= 1}">Triple<br><span>Not</span> Ready</button>
+                </div><br><div class="hex">
                     <div class="hex-progress" id="box1" :class="{capped: player.p.gte(1)}" onclick="finishBox()">
                         <div>
                             [<span v-html="formatStaticMain(player.p)"></span> = {{ format(player.p) }}]
@@ -91,7 +95,9 @@
                                         Cost: {{ player.res_upgs.includes(x-1) ? player.res_spent[x-1].format(0) : tmp.resUpgs.cost[x-1].format(0) }} Research Points
                                     </div>
                                 </div>
-                                <button :class="{locked: (tmp.charger_upgrade <= player.res_charge.length && !player.res_charge.includes(x-1)) || !RES_UPGS[x-1].charged, charged: player.res_charge.includes(x-1)}" @click="chargeResearchUpg(x-1)" class="charge_btn">🗲</button>
+                                <button :class="{locked: (tmp.charger_upgrade <= player.res_charge.length && !player.res_charge.includes(x-1)) || !RES_UPGS[x-1].charged, charged: player.res_charge.includes(x-1)}" @click="chargeResearchUpg(x-1)" class="charge_btn">
+                                    <img src="images/Bolt.png">
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -109,7 +115,7 @@
                             @click="player.charge_ch = player.charge_ch == y+''+x ? '' : y+''+x"
                             :style="{'--percent': player.charge[y-1][x-1]*100+'%'}">
                                 <div>
-                                    {{ player.charge[y-1][x-1].toFixed(3) + (player.charge_ch == y+''+x ? "⯅" : "⯆") }}
+                                    <span>{{ player.charge[y-1][x-1].toFixed(3) }}</span><img v-if="player.charge_ch == y+''+x" src="images/Up.png"><img v-else src="images/Down.png">
                                 </div>
                             </div><div class="charge-row-info">
                                 <div>b<sub>{{ y }}</sub></div>
@@ -155,6 +161,7 @@
                         </div>
                     </div>
                 </div><div v-if="tmp.tab == 'info'">
+                    To unlock informations, you need to get something.
                     <div v-if="player.box_unl">
                         <h2>Compacted Box</h2>
                         The game has 2d-designed isometric box like cap at 1.

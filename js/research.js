@@ -71,7 +71,7 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=9,
         desc: `Third <b>Research Upgrade</b> is stronger based on spent time in <b>Compacted Box</b>. <i>(capped at 5 minutes)</i>`,
-        charged: `Third 4 <b>Research Upgrades</b> are stronger based on spent time in <b>Compacted Box</b>.`,
+        charged: `3-4 <b>Research Upgrades</b> are stronger based on spent time in <b>Compacted Box</b>.`,
         cost: E(10),
         effect() {
             let x = Math.log10(Math.min(chargedResUpg(5)?1/0:300,player.p_time)+1)/2+1
@@ -131,8 +131,8 @@ const RES_UPGS = [
         effDesc: x=>"-"+format(x),
     },{
         unl: ()=>player.reset>=26,
-        desc: `Third 4 <b>Research Upgrades</b>' effect softcap is weaker.`,
-        charged: `Third 4, sixth 7 <b>Research Upgrades</b>' effect softcap is weaker.`,
+        desc: `3-4 <b>Research Upgrades</b>' effect softcap is weaker.`,
+        charged: `3-4, 6-7 <b>Research Upgrades</b>' effect softcap is weaker.`,
         cost: E(15),
     },{
         unl: ()=>player.reset>=27&&player.double>=5,
@@ -158,7 +158,7 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=60,
         desc: `First 3 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s second penalty is weaker.`,
-        charged: `First 3, seventh 8 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s penalty is weaker.`,
+        charged: `First 3, 7-8 <b>Research Upgrades</b> are overpowered. <b>Double Compacted Box</b>'s penalty is weaker.`,
         cost: E(250),
     },{
         unl: ()=>player.reset>=75,
