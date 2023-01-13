@@ -143,7 +143,7 @@ const RES_UPGS = [
     },{
         unl: ()=>player.reset>=27&&player.double>=5,
         desc: `<b>Compacted Box</b>'s penalty scaling is weaker.`,
-        charged: `<b>Compacted Box</b>'s penalty scaling is slightly weaker.`,
+        charged: `<b>Compacted Box</b>'s penalty scaling is very weaker.`,
         cost: E(20),
     },{
         unl: ()=>player.reset>=30&&player.double>=5,
