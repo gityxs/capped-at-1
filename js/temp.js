@@ -29,6 +29,9 @@ function resetTemp() {
         },
 
         tab: 'box',
+
+        end: false,
+        end_time: 0,
     }
 }
 

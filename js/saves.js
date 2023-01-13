@@ -161,7 +161,7 @@ function convertStringToDecimal() {
     for (let x = 0; x < player.res_spent.length; x++) player.res_spent[x] = E(player.res_spent[x])
 }
 
-function cannotSave() { return false }
+function cannotSave() { return tmp.end }
 
 function save(){
     let str = btoa(JSON.stringify(player))

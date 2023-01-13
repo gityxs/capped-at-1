@@ -2,7 +2,7 @@ MAIN.triple = {
     formula() {
         let r = player.double
 
-        let x = Math.min(1,r/(15+Math.min(5,player.triple*3)))
+        let x = Math.min(1,r/(15+Math.min(5,player.triple*3)+(player.triple>=9?3:0)))
 
         return x
     },
@@ -14,7 +14,9 @@ MAIN.triple = {
         if (tmp.triple_formula >= 1) {
             player.triple_unl = true
             player.triple++
-            this.doReset()
+
+            if (player.triple>=10) tmp.end = true
+            else this.doReset()
         }
     },
     doReset(order='b3') {
@@ -46,9 +48,13 @@ MAIN.triple = {
     },
 
     get_glyph() {
+        let b = 3
+
+        if (player.triple>=9) b += 0.6
+
         let r = player.triple
 
-        let x = Math.max(0,r*3)
+        let x = Math.floor(Math.max(0,r*b))
 
         return x
     },
@@ -91,14 +97,14 @@ MAIN.triple = {
             x=>"<b>x"+format(x,2)+"</b> to <b>ψ</b> base"
         ],[
             l=>{
-                let x = l**0.5/15
+                let x = player.triple >= 7 ? l**0.61/15 : l**0.5/15
 
                 return x
             },
             x=>"<b>+^"+format(x)+"</b> to <b>Double Compacted Box</b>'s claim formula"
         ],[
             l=>{
-                let x = 1+l**0.9/90
+                let x = player.triple >= 8 ? 1+l/80 : 1+l**0.9/90
 
                 return x
             },
@@ -125,6 +131,21 @@ MAIN.triple = {
         },{
             r: 5,
             desc: `Add <b>1</b> to <b>Upgrade Charger</b> per <b>Triple Compacted Box</b>, starting at 4.`,
+        },{
+            r: 6,
+            desc: `First 2 <b>Research Upgrade</b> provides an exponential boost. <b>Li</b> boosts eighth <b>Research Upgrade</b>.`,
+        },{
+            r: 7,
+            desc: `<b>Su</b>'s effect is stronger.`,
+        },{
+            r: 8,
+            desc: `<b>Ling</b>'s effect is stronger.`,
+        },{
+            r: 9,
+            desc: `<b>Triple Compacted Box</b>'s bonus base is increased by <b>0.6</b>.`,
+        },{
+            r: 10,
+            desc: `Beat the game!`,
         },
     ],
 }

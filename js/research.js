@@ -11,9 +11,11 @@ const RES_UPGS = [
 
             if (chargedResUpg(0)) x = x.pow(player.double/2+1)
 
+            if (player.triple >= 6) x = x.log10().add(10).log10().pow(3)
+
             return x
         },
-        effDesc: x=>formatMult(x),
+        effDesc: x=>player.triple >= 6?"^"+format(x):formatMult(x),
     },{
         unl: ()=>true,
         desc: `Boost production based on <b>Points</b>.`,
@@ -27,9 +29,11 @@ const RES_UPGS = [
 
             if (hasResearchUpg(4)) x = x.pow(2)
 
+            if (player.triple >= 6) x = x.log10().add(10).log10().pow(2)
+
             return x
         },
-        effDesc: x=>formatMult(x),
+        effDesc: x=>player.triple >= 6?"^"+format(x):formatMult(x),
     },{
         unl: ()=>player.reset>=3,
         desc: `Decrease <b>Compacted Box</b>'s penalty base based on unspent <b>Research Points</b>.`,
@@ -111,6 +115,8 @@ const RES_UPGS = [
 
             if (chargedResUpg(14)) x = (x+1)**1.75-1
 
+            if (player.triple >= 6) x *= tmp.glyph.eff[1]
+
             return x
         },
         effDesc: x=>"+"+format(x),
@@ -183,6 +189,10 @@ const RES_UPGS = [
         unl: ()=>player.reset>=360,
         desc: `<b>Core Formula</b>'s effect softcap is weaker.`,
         cost: E(80000),
+    },{
+        unl: ()=>player.reset>=1000,
+        desc: `<b>Double Compacted Box</b>'s claim formula is doubled.`,
+        cost: E(700000),
     },
 ]
 

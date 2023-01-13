@@ -4,6 +4,8 @@ MAIN.double = {
 
         let x = Math.min(1,r**(2+tmp.glyph.eff[2])*Math.log10(r+1)/160/tmp.double_penalty[1])
 
+        if (hasResearchUpg(18)) x *= 2
+
         return x
     },
     progress() {

@@ -553,3 +553,26 @@ button.tab-btn {
 #hex-btn3 {
     background-color: #303;
 }
+
+#app {
+    transition-duration: 12s;
+}
+
+#app.end {
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(2,0) rotate(270deg);
+}
+
+#end-page {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#end-page > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

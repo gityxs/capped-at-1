@@ -12,10 +12,10 @@ const MAIN = {
     gain() {
         let x = E(1)
 
-        if (hasResearchUpg(0)) x = x.mul(researchUpgEff(0))
-        if (hasResearchUpg(1)) x = x.mul(researchUpgEff(1))
-
         x = x.mul(tmp.charge_formula)
+
+        if (hasResearchUpg(0)) x = player.triple>=6 ? x.pow(researchUpgEff(0)) : x.mul(researchUpgEff(0))
+        if (hasResearchUpg(1)) x = player.triple>=6 ? x.pow(researchUpgEff(1)) : x.mul(researchUpgEff(1))
 
         if (hasResearchUpg(8)) x = x.pow(chargedResUpg(8)?1.5:1.25)
 
@@ -41,7 +41,7 @@ const MAIN = {
 
         b *= tmp.double_penalty[0]
 
-        let x = Decimal.pow(10,b**(hasResearchUpg(11)?1.4:1.5))
+        let x = Decimal.pow(10,Math.max(0,b)**(hasResearchUpg(11)?1.4:1.5))
 
         if (hasResearchUpg(15)) x = expMult(x,0.8)
 
@@ -65,6 +65,13 @@ const MAIN = {
 }
 
 el.update.main = _=>{
+    document.getElementById('app').className = tmp.end ? "end" : ""
+
+    document.getElementById('app').style.display = tmp.end_time < 12 ? '' : 'none'
+    document.getElementById('end-page').style.display = tmp.end_time >= 12 ? '' : 'none'
+
+    document.getElementById('total-time').innerHTML = formatTime(player.time)
+
     document.documentElement.style.setProperty('--progress-box', (tmp.progress*100)+'%');
 
     document.documentElement.style.setProperty('--progress-box2', (tmp.double_progress*100)+'%');
