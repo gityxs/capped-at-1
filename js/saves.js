@@ -212,13 +212,13 @@ function export_copy() {
 }
 
 function importy() {
-    let loadgame = prompt("Paste in your save WARNING: WILL OVERWRITE YOUR CURRENT SAVE")
+    let loadgame = prompt("粘贴到你的存档中警告：此操作将覆盖你当前的游戏进度")
         if (loadgame != null) {
             let keep = player
             try {
                 setTimeout(_=>{
                     if (findNaN(loadgame, true)) {
-                        notify("Error Importing, because it got NaNed", "error")
+                        notify("导入错误，因为发现了 NaMed", "error")
                         return
                     }
                     load(loadgame)
@@ -228,7 +228,7 @@ function importy() {
                     location.reload()
                 }, 200)
             } catch (error) {
-                notify("Failed Importing", "error")
+                notify("导入失败", "error")
                 player = keep
             }
         }
